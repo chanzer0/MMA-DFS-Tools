@@ -1,5 +1,4 @@
 import sys
-from windows_inhibitor import *
 from mma_optimizer import MMA_Optimizer
 import time
 
@@ -10,6 +9,10 @@ def main(arguments):
         exit()
 
     site = arguments[1]
+
+    if site == "fd":
+        print("FanDuel is not supported at this time.")
+
     process = arguments[2]
 
     if process == "opto":
