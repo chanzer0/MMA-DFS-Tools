@@ -50,7 +50,7 @@ class MMA_GPP_Simulator:
     seen_lineups_ix = {}
     game_info = {}
     matchups = {}
-    allow_opps = 0
+    allow_opps = False
 
     def __init__(
         self,
@@ -106,6 +106,7 @@ class MMA_GPP_Simulator:
         self.randomness_amount = float(self.config["randomness"])
         self.min_lineup_salary = int(self.config["min_lineup_salary"])
         self.max_pct_off_optimal = float(self.config["max_pct_off_optimal"])
+        self.allow_opps = self.config["allow_players_from_same_match"]
 
     # In order to make reasonable tournament lineups, we want to be close enough to the optimal that
     # a person could realistically land on this lineup. Skeleton here is taken from base `nba_optimizer.py`
@@ -186,20 +187,19 @@ class MMA_GPP_Simulator:
                 game_info_key = "Game Info" if self.site == "dk" else "game"
                 game_info_str = row[game_info_key]
                 # Extract matchup and datetime information
-                match = re.search(r"(\w+)@(\w+) (\d{2}/\d{2}/\d{4} \d{2}:\d{2}[AP]M ET)", row['Game Info'])
+                match = re.search(r"([\w\s]+)@([\w\s]+) (\d{2}/\d{2}/\d{4} \d{2}:\d{2}[AP]M ET)", game_info_str)
                 if match:
                     player1_team, player2_team, datetime_str = match.groups()
 
                     # Create a matchup key based on the team (or player) abbreviations
                     matchup_key = (player1_team, player2_team)
-
+                    print(matchup_key,match)
                     # Populate the matchups dictionary with player details
                     if matchup_key not in self.matchups:
                         self.matchups[matchup_key] = []
 
                     # Determine the opponent based on the matchup key and the player's team
                     opponent = player2_team if player1_team == team else player1_team
-
                     # Before appending, ensure the player's dictionary has the 'Opp' field updated
                     if player_name in self.player_dict:
                         self.player_dict[player_name]['Opp'] = opponent
@@ -523,12 +523,12 @@ class MMA_GPP_Simulator:
             max_pct_off_optimal = self.max_pct_off_optimal
             problems = []
             opponents_dict = {}
-            if self.allow_opps == 0:
+            if self.allow_opps == False:
                 for matchup in self.matchups.values():
                     for player in matchup:
                         opponents = [op["UniqueKey"] for op in matchup if op["UniqueKey"] != player["UniqueKey"]]
                         opponents_dict[player["UniqueKey"]] = opponents
-                #print(opponents_dict)
+                print(opponents_dict)
             # creating tuples of the above np arrays plus which lineup number we are going to create
             for i in range(diff):
                 lu_tuple = (
@@ -970,7 +970,7 @@ class MMA_GPP_Simulator:
         for val in self.field_lineups.values():
             lineup_players = val["Lineup"]
             for player in lineup_players:
-                unique_players[player]["In"] += 1
+                unique_players[player]["In"] += val['Count']
                 unique_players[player]["ROI"] += val["ROI"]
                 unique_players[player]["Cashes"] += val["Cashes"]
                 
