@@ -970,7 +970,7 @@ class MMA_GPP_Simulator:
         for val in self.field_lineups.values():
             lineup_players = val["Lineup"]
             for player in lineup_players:
-                unique_players[player]["In"] += 1
+                unique_players[player]["In"] += val['Count']
                 unique_players[player]["ROI"] += val["ROI"]
                 unique_players[player]["Cashes"] += val["Cashes"]
                 
