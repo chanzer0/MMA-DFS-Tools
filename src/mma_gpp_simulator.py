@@ -187,7 +187,7 @@ class MMA_GPP_Simulator:
                 game_info_key = "Game Info" if self.site == "dk" else "game"
                 game_info_str = row[game_info_key]
                 # Extract matchup and datetime information
-                match = re.search(r"([\w\s]+)@([\w\s]+) (\d{2}/\d{2}/\d{4} \d{2}:\d{2}[AP]M ET)", game_info_str)
+                match = re.search(r"([^@]+)@([^@]+) (\d{2}/\d{2}/\d{4} \d{2}:\d{2}[AP]M ET)", game_info_str)
                 if match:
                     player1_team, player2_team, datetime_str = match.groups()
 
@@ -466,16 +466,24 @@ class MMA_GPP_Simulator:
                     max_pct_off_optimal * optimal_score
                 )
                 if proj >= reasonable_projection:
-                    reject = False
-                    lu = {
-                        "Lineup": lineup,
-                        "Wins": 0,
-                        "Top1Percent": 0,
-                        "ROI": 0,
-                        "Cashes": 0,
-                        "Type": "generated",
-                        "Count": 0
-                    }
+                    # Check if the lineup contains opponents
+                    contains_opponents = any(opponent in lineup for fighter in lineup for opponent in opponents_dict.get(fighter, []))
+                    if contains_opponents:
+                        # Found opponents in the same lineup, reject this lineup
+                        #print("Opponents found in the same lineup, rejecting lineup")
+                        reject = True
+                    else:
+                        # Lineup is good, accept it
+                        reject = False
+                        lu = {
+                            "Lineup": lineup,
+                            "Wins": 0,
+                            "Top1Percent": 0,
+                            "ROI": 0,
+                            "Cashes": 0,
+                            "Type": "generated",
+                            "Count": 0
+                        }
         return lu
 
     def generate_field_lineups(self):
@@ -528,7 +536,7 @@ class MMA_GPP_Simulator:
                     for player in matchup:
                         opponents = [op["UniqueKey"] for op in matchup if op["UniqueKey"] != player["UniqueKey"]]
                         opponents_dict[player["UniqueKey"]] = opponents
-                print(opponents_dict)
+                #print(opponents_dict)
             # creating tuples of the above np arrays plus which lineup number we are going to create
             for i in range(diff):
                 lu_tuple = (
@@ -740,6 +748,8 @@ class MMA_GPP_Simulator:
             (list(self.matchups[m]), self.num_iterations, plot_folder, kmeans_5, scaler, gmm_models)
             for m in self.matchups
         ]
+        #for m in self.matchups:
+        #    print(len(m))
         #print(matchups_data[0])
         # Create a pool of workers and distribute the work
         with mp.Pool(processes=mp.cpu_count()) as pool:
