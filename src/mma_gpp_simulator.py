@@ -986,9 +986,9 @@ class MMA_GPP_Simulator:
                 
                 # Only increment Wins and Top1Percent if the lineup has them
                 if val['Wins'] > 0:
-                    unique_players[player]["Wins"] += 1 / len(lineup_players)  # Distribute the win among the players in the lineup
+                    unique_players[player]["Wins"] += val['Wins']  # Distribute the win among the players in the lineup
                 if val['Top1Percent'] > 0:
-                    unique_players[player]["Top1Percent"] += 1 / len(lineup_players)  # Distribute the top 1% finish among the players in the lineup
+                    unique_players[player]["Top1Percent"] += val['Top1Percent']   # Distribute the top 1% finish among the players in the lineup
 
         # Write the aggregated data to the output file
         with open(out_path, "w") as f:
@@ -1009,7 +1009,7 @@ class MMA_GPP_Simulator:
                         top10_p,
                         cash_p,
                         field_p,
-                        proj_own,
+                        proj_own/100,
                         roi_p,
                     )
                 )
