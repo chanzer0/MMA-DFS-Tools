@@ -735,9 +735,9 @@ class MMA_GPP_Simulator:
         if not os.path.exists(plot_folder):
             os.makedirs(plot_folder)
 
-        kmeans_5 = pickle.load(open("src/cluster_data/kmeans.pkl", "rb"))
-        scaler = pickle.load(open("src/cluster_data/scaler.pkl", "rb"))
-        gmm_models = pickle.load(open("src/cluster_data/gmm_models.pkl", "rb"))
+        kmeans_5 = pickle.load(open(os.path.join(os.path.dirname(__file__), f"cluster_data/kmeans.pkl"), "rb"))
+        scaler = pickle.load(open(os.path.join(os.path.dirname(__file__), f"cluster_data/scaler.pkl"), "rb"))
+        gmm_models = pickle.load(open(os.path.join(os.path.dirname(__file__), f"cluster_data/gmm_models.pkl"), "rb"))
         # Adding prints for GMM components means, covariances, and selected component
        # for k,v in gmm_models.items():
         #    print(f"Cluster: {k}, GMM Means: {v.means_}, GMM Covariances: {v.covariances_}")
